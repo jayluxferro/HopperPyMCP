@@ -1,0 +1,4 @@
+fastmcp
+pytest
+pytest-mock
+pytest-asyncio
