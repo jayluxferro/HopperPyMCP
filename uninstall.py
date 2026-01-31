@@ -5,7 +5,7 @@ HopperPyMCP Uninstallation Script
 Removes the FastMCP server script from your Hopper disassembler Scripts directory.
 
 Usage:
-    python uninstall.py [--confirm] [--dry-run]
+    uv run uninstall.py [--confirm] [--dry-run]
 """
 
 import sys
@@ -76,8 +76,9 @@ def show_dependency_info():
     print("   • pytest-mock (development)")
     print("   • pytest-asyncio (development)")
     print("")
-    print("   💡 If you want to remove these packages, run:")
-    print("   pip uninstall fastmcp pytest pytest-mock pytest-asyncio")
+    print("   💡 If you want to remove these packages:")
+    print("   • With uv: uv pip uninstall fastmcp pytest pytest-mock pytest-asyncio")
+    print("   • With pip: pip uninstall fastmcp pytest pytest-mock pytest-asyncio")
     print("")
     print("   ⚠️  Warning: Only remove these if you're not using them elsewhere!")
 

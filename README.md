@@ -14,41 +14,45 @@ A FastMCP server plugin for the Hopper disassembler that provides powerful analy
 
 ## Quick Installation
 
-The installation process automatically detects your Python environment (conda, uv, venv, or system Python) and configures everything for you:
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management. Install uv if needed, then run:
 
 ```bash
-# Simple one-command installation
-python install.py
+# Simple one-command installation (uv syncs deps and runs install)
+uv run install.py
 ```
 
 That's it! The script will:
+- ✅ Sync dependencies from `pyproject.toml` (via uv)
 - ✅ Detect your Python environment automatically
-- ✅ Install required dependencies (fastmcp)
 - ✅ Configure the script with correct Python paths
 - ✅ Install to the appropriate Hopper Scripts directory
 
+### Prerequisites
+
+- **[uv](https://docs.astral.sh/uv/)** — Install with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
 ### Supported Environments
 
+- **uv** (recommended) — Uses `pyproject.toml` and `uv.lock`
 - **Conda environments** (including miniconda/anaconda)
-- **UV virtual environments** 
 - **Python venv/virtualenv**
 - **System Python installations**
 - **macOS and Linux platforms**
 
-If you use an environment like conda, uv, or virtualenv, run the install script from within a new environment, since dependencies will be installed by install.py.
+If you use conda or venv, run the install script from within that environment; dependencies will be installed by install.py.
 
 ## Manual Installation Options
 
 ### Dry Run (Preview Changes)
 ```bash
 # See what would be installed without making changes
-python install.py --dry-run
+uv run install.py --dry-run
 ```
 
 ### Force Installation
 ```bash
 # Overwrite existing installation without prompting
-python install.py --force
+uv run install.py --force
 ```
 
 ## Uninstallation
@@ -57,13 +61,13 @@ Remove the plugin cleanly:
 
 ```bash
 # Remove the installation
-python uninstall.py
+uv run uninstall.py
 
 # Preview what would be removed
-python uninstall.py --dry-run
+uv run uninstall.py --dry-run
 
 # Remove without confirmation
-python uninstall.py --confirm
+uv run uninstall.py --confirm
 ```
 
 ## Usage in Hopper
@@ -144,19 +148,21 @@ The server will run on `http://localhost:42069/mcp/` and provide the following t
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/) for dependency management
 - Hopper Disassembler v4 or v5
-- FastMCP library (automatically installed)
+- FastMCP library (automatically installed via uv)
 
 ## File Structure
 
 ```
 HopperPyMCP/
+├── pyproject.toml                # Project config and dependencies
+├── uv.lock                       # Locked dependency versions
+├── .python-version               # Python version (3.11)
 ├── install.py                    # Main installation script
 ├── uninstall.py                  # Uninstallation script
-├── fastmcp_server.py             # Current working version
 ├── fastmcp_server_template.py    # Template with placeholders
-├── requirements.txt              # Python dependencies
 ├── tests/                        # Test suite
 └── README.md                     # This file
 ```
@@ -167,7 +173,10 @@ HopperPyMCP/
 
 **Problem**: `fastmcp` import fails after installation
 ```bash
-# Solution: Manually install dependencies
+# Solution: Sync dependencies with uv (recommended)
+uv sync
+
+# Or manually install with pip (if not using uv):
 pip install fastmcp
 # or for conda:
 conda install -c conda-forge fastmcp
@@ -182,9 +191,12 @@ ls -la ~/GNUstep/Library/ApplicationSupport/Hopper/Scripts/  # Linux
 
 **Problem**: Wrong Python environment detected
 ```bash
-# Solution: Activate the correct environment first
+# Solution: Use uv (recommended) - it manages the environment
+uv run install.py
+
+# Or activate the correct environment first:
 conda activate your-environment  # for conda
-source your-venv/bin/activate    # for venv
+source .venv/bin/activate        # for venv
 # Then run install.py
 ```
 
@@ -208,8 +220,8 @@ source your-venv/bin/activate    # for venv
 
 ### Running Tests
 ```bash
-# Run the test suite
-python -m pytest tests/
+# Run the test suite (uv manages the environment)
+uv run pytest tests/
 ```
 
 ### Development Installation

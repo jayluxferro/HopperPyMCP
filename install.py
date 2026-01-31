@@ -6,7 +6,7 @@ Automatically detects your Python environment (conda, uv, venv, or system Python
 and installs the FastMCP server script to your Hopper disassembler Scripts directory.
 
 Usage:
-    python install.py [--force] [--dry-run]
+    uv run install.py [--force] [--dry-run]
 """
 
 import sys
@@ -58,9 +58,10 @@ def detect_python_environment():
         env_info['environment_path'] = sys.prefix
         print(f"   ✅ Detected system Python: {env_info['environment_path']}")
     
-    # Check for uv if present
-    if shutil.which('uv') and (os.path.exists('.venv') or os.path.exists('uv.lock')):
+    # Check for uv if present (project uses uv)
+    if shutil.which('uv') and (os.path.exists('pyproject.toml') or os.path.exists('uv.lock')):
         env_info['package_manager'] = 'uv'
+        env_info['type'] = env_info['type'] or 'uv'
         print("   ✅ uv package manager detected")
     
     return env_info
@@ -144,27 +145,36 @@ def get_hopper_script_dir():
 
 
 def install_dependencies(env_info, dry_run=False):
-    """Install requirements using appropriate package manager."""
+    """Install dependencies using appropriate package manager."""
     
     print("📦 Installing dependencies...")
     
-    if not os.path.exists('requirements.txt'):
-        print("   ⚠️  requirements.txt not found, skipping dependency installation")
+    # Prefer uv with pyproject.toml (project standard)
+    if env_info['package_manager'] == 'uv' and os.path.exists('pyproject.toml'):
+        cmd = ['uv', 'sync']
+        print("   🔧 Using uv sync (pyproject.toml)")
+        
+    elif env_info['package_manager'] == 'conda' and os.path.exists('pyproject.toml'):
+        cmd = [sys.executable, '-m', 'pip', 'install', '-e', '.']
+        print("   🔧 Using pip within conda (editable install)")
+        
+    elif os.path.exists('pyproject.toml'):
+        cmd = [sys.executable, '-m', 'pip', 'install', '-e', '.']
+        print("   🔧 Using pip (editable install)")
+        
+    elif os.path.exists('requirements.txt'):
+        if env_info['package_manager'] == 'conda':
+            cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
+            print("   🔧 Using pip within conda environment")
+        elif env_info['package_manager'] == 'uv':
+            cmd = ['uv', 'pip', 'install', '-r', 'requirements.txt']
+            print("   🔧 Using uv pip")
+        else:
+            cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
+            print("   🔧 Using pip")
+    else:
+        print("   ⚠️  pyproject.toml or requirements.txt not found, skipping dependency installation")
         return
-    
-    cmd = []
-    if env_info['package_manager'] == 'conda':
-        # Try pip within conda environment (more reliable than conda install)
-        cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
-        print("   🔧 Using pip within conda environment")
-        
-    elif env_info['package_manager'] == 'uv':
-        cmd = ['uv', 'pip', 'install', '-r', 'requirements.txt']
-        print("   🔧 Using uv pip")
-        
-    else:  # pip
-        cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
-        print("   🔧 Using pip")
     
     if dry_run:
         print(f"   🔍 Would run: {' '.join(cmd)}")
@@ -296,7 +306,7 @@ def main():
         print("🎉 Installation completed successfully!")
         print(f"📁 Script location: {target_path}")
         print("💡 You can now use the script from within Hopper!")
-        print("💡 Run 'python uninstall.py' to remove the installation")
+        print("💡 Run 'uv run uninstall.py' to remove the installation")
         
         # Clean up temporary file
         if not args.dry_run and os.path.exists(configured_script):
