@@ -591,12 +591,16 @@ def search_strings_regex(
     for addr, string_value in strings_list:
         if len(matches) >= max_results:
             break
-            
+
+        # Hopper's getStringAtIndex can return int/bytes; re.search requires str/bytes
+        if not isinstance(string_value, (str, bytes)):
+            string_value = str(string_value) if string_value is not None else ""
+
         # Check if string matches pattern
         if pattern.search(string_value):
             string_info = {
                 "address": f"0x{addr:x}",
-                "content": string_value
+                "content": string_value if isinstance(string_value, str) else string_value.decode("utf-8", errors="replace")
             }
             # Add name if available
             name_at_addr = doc.getNameAtAddress(addr)
@@ -633,6 +637,11 @@ def get_string_at_addr(address_hex: Annotated[str, "The memory address as hex st
     # Search for the exact address in the strings list
     for string_addr, string_content in strings_list:
         if string_addr == address:
+            # Normalize to str (Hopper can return int/bytes)
+            if isinstance(string_content, bytes):
+                string_content = string_content.decode("utf-8", errors="replace")
+            elif not isinstance(string_content, str):
+                string_content = str(string_content) if string_content is not None else ""
             return f"String at 0x{address:x}: {string_content}"
     
     return f"No string found at address 0x{address:x}"

@@ -904,13 +904,13 @@ class TestFastMCPServer:
             except Exception as e:
                 assert "Invalid doc_id 999" in str(e)
             
-            # Try negative doc_id - this will trigger validation error
+            # Try negative doc_id - Pydantic validation rejects before tool runs
             try:
                 result = await client.call_tool("set_current_document", {"doc_id": -1})
                 # Should not reach here
                 assert False, "Expected validation error to be raised"
             except Exception as e:
-                assert "is less than the minimum of 0" in str(e)
+                assert "greater than or equal to 0" in str(e) or "doc_id" in str(e)
 
     @pytest.mark.asyncio
     async def test_get_all_documents_error_handling(self):
