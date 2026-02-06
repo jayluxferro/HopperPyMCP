@@ -55,6 +55,9 @@ uv run install.py --dry-run
 uv run install.py --force
 ```
 
+### Development (generate script in project for symlink)
+Use `uv run install.py --dev` to generate `fastmcp_server.py` in the project directory, then symlink it into Hopper. See [Development Installation](#development-installation) below.
+
 ## Uninstallation
 
 Remove the plugin cleanly:
@@ -106,7 +109,7 @@ After running the script in Hopper, you'll need to launch the MCP server through
    launch_server_pymcp()
    ```
 
-The server runs and **blocks the Hopper Python console** until it stops, which keeps the connection reliable. Use a second Hopper window if you want to run analysis in the console while the MCP server is running in the first.
+The server runs and **blocks the Hopper Python console** until it stops, which keeps the connection reliable. Scripts are only available after you load at least one binary into Hopper.
 
 Server: `http://localhost:42069/mcp/`. It provides the following tools:
 
@@ -228,11 +231,15 @@ uv run pytest tests/
 ```
 
 ### Development Installation
-For development, you might want to symlink instead of copy:
+Generate the script in the project directory and symlink it into Hopper so you can edit the template and test without re-running the full installer:
+
 ```bash
-# Manual symlink for development
-ln -s $(pwd)/fastmcp_server.py ~/Library/Application\ Support/Hopper/Scripts/
+uv run install.py --dev
+# Then symlink (macOS example; Linux: ~/GNUstep/Library/ApplicationSupport/Hopper/Scripts/)
+ln -s "$(pwd)/fastmcp_server.py" ~/Library/Application\ Support/Hopper/Scripts/
 ```
+
+Edit `fastmcp_server_template.py`; the symlinked script in Hopper will reflect changes on next run (or restart the script in Hopper). Re-run `uv run install.py --dev` if you change only the template’s path placeholders.
 
 ## Support
 

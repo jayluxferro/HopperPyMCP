@@ -7,6 +7,7 @@ and installs the FastMCP server script to your Hopper disassembler Scripts direc
 
 Usage:
     uv run install.py [--force] [--dry-run]
+    uv run install.py --dev    # Generate fastmcp_server.py in project dir for symlink development
 """
 
 import sys
@@ -244,6 +245,8 @@ def main():
                        help='Overwrite existing installation without prompting')
     parser.add_argument('--dry-run', action='store_true', 
                        help='Show what would be done without actually doing it')
+    parser.add_argument('--dev', action='store_true',
+                       help='Generate fastmcp_server.py in the project directory only (no copy to Hopper); for symlink-based development')
     args = parser.parse_args()
     
     print("🚀 HopperPyMCP Installation Script")
@@ -272,16 +275,27 @@ def main():
                 print("⚠️  Warning: FastMCP validation failed, but continuing with installation")
         
         # 6. Create script from template
-        configured_script = 'fastmcp_server_configured.py'
+        dev_output = 'fastmcp_server.py' if args.dev else 'fastmcp_server_configured.py'
         substitutions = {
             '{{PYTHON_LIB_DYNLOAD}}': paths['lib_dynload'],
             '{{PYTHON_LIB_PATH}}': paths['lib_path'],
             '{{PYTHON_SITE_PACKAGES}}': paths['site_packages']
         }
         
-        substitute_template(template_path, configured_script, substitutions, dry_run=args.dry_run)
+        substitute_template(template_path, dev_output, substitutions, dry_run=args.dry_run)
+        
+        if args.dev:
+            # Dev mode: only generate in project dir, do not copy to Hopper
+            print("\n" + "=" * 50)
+            print("🎉 Development script generated!")
+            print(f"📁 Script location: {os.path.abspath(dev_output)}")
+            print("💡 Symlink it to Hopper's Scripts directory to test changes without re-installing:")
+            hopper_dir = get_hopper_script_dir()
+            print(f"   ln -s $(pwd)/{dev_output} \"{hopper_dir}/\"")
+            return
         
         # 7. Install to Hopper directory
+        configured_script = dev_output
         hopper_dir = get_hopper_script_dir()
         target_path = os.path.join(hopper_dir, 'fastmcp_server.py')
         
