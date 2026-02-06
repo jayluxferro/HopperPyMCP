@@ -358,11 +358,8 @@ def get_current_document() -> dict:
     Returns information about the currently active executable file being analyzed,
     including the doc_id needed to switch back to this document later.
     """
-    if "python" in sys.executable:
-        all_docs = Document.getAllDocuments()
-    else:
-        all_docs = [doc] #XXX: This is buggy: Document.getAllDocuments()
-    current_doc = doc  # Use the global doc variable instead of getCurrentDocument()
+    all_docs = Document.getAllDocuments()
+    current_doc = doc  # MCP "current" document (set at load or via set_current_document)
     
     # Find the index of the current document in the all_docs list
     doc_id = -1
