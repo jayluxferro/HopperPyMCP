@@ -42,3 +42,4 @@ htmlcov/
 # Misc
 *.mcpcache
 .DS_Store
+git-push
