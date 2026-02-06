@@ -109,7 +109,7 @@ After running the script in Hopper, you'll need to launch the MCP server through
    launch_server_pymcp()
    ```
 
-The server runs and **blocks the Hopper Python console** until it stops, which keeps the connection reliable. Scripts are only available after you load at least one binary into Hopper.
+The server runs and **blocks the Hopper Python console** until it stops. Scripts are only available after you load at least one binary into Hopper.
 
 Server: `http://localhost:42069/mcp/`. It provides the following tools:
 

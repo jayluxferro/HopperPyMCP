@@ -1232,21 +1232,31 @@ def mark_data_type_at_address(
 
 ################################ MCP SERVER ###################################
 
+# Capture for launch_both_servers() when HopperOllama script runs after this one and overwrites doc/mcp
+_pymcp_doc = doc
+_pymcp_mcp = mcp
+
 def run_server_pymcp():
     import traceback
+    # Uvicorn installs signal handlers that don't work in threads and can hang; disable them.
     try:
-        doc.log("[HopperPyMCP] Server thread started, calling mcp.run()...")
-        mcp.run(transport="http", host="127.0.0.1", port=42069)
+        import uvicorn
+        uvicorn.Server.install_signal_handlers = lambda *_, **__: None
+    except Exception:
+        pass
+    try:
+        _pymcp_doc.log("[HopperPyMCP] Server thread started, calling mcp.run()...")
+        _pymcp_mcp.run(transport="http", host="127.0.0.1", port=42069)
     except Exception as e:
         tb = traceback.format_exc()
         msg = f"[HopperPyMCP] Server failed: {e}\n{tb}"
         try:
-            doc.log(msg)
+            _pymcp_doc.log(msg)
         except Exception:
             print(msg)
 
 def launch_server_pymcp():
-    """Start the HopperPyMCP server on port 42069. Blocks the console until the server stops (keeps the connection reliable)."""
+    """Start the HopperPyMCP server on port 42069. Blocks the console until the server stops."""
     print("Starting HopperPyMCP server on port 42069...")
     server_thread = threading.Thread(target=run_server_pymcp, daemon=False)
     server_thread.start()
