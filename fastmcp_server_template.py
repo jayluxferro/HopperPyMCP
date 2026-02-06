@@ -1239,13 +1239,11 @@ def run_server():
     mcp.run(transport="http", host="127.0.0.1", port=42069)
 
 def launch_server():
+    """Start the FastMCP server on port 42069 in the background. Console stays usable."""
     print("Starting FastMCP server on port 42069...")
-    
-    server_thread = threading.Thread(target=run_server, daemon=True)  # Non-daemon so it keeps process alive
+    server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    
-    print("Server endpoint: http://localhost:42069/mcp/")
-    server_thread.join()
+    print("Server endpoint: http://localhost:42069/mcp/ (running in background; console is free)")
 
 def cache_strings():
     print("Starting caching...")

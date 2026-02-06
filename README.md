@@ -106,7 +106,7 @@ After running the script in Hopper, you'll need to launch the MCP server through
    launch_server()
    ```
 
-The server will run on `http://localhost:42069/mcp/` and provide the following tools:
+The server runs in the background on `http://localhost:42069/mcp/`; the Python console stays usable. It provides the following tools:
 
 ### Document Management
 
