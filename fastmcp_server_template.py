@@ -1235,34 +1235,45 @@ def mark_data_type_at_address(
 
 ################################ MCP SERVER ###################################
 
-def run_server():
-    mcp.run(transport="http", host="127.0.0.1", port=42069)
+def run_server_pymcp():
+    import traceback
+    try:
+        doc.log("[HopperPyMCP] Server thread started, calling mcp.run()...")
+        mcp.run(transport="http", host="127.0.0.1", port=42069)
+    except Exception as e:
+        tb = traceback.format_exc()
+        msg = f"[HopperPyMCP] Server failed: {e}\n{tb}"
+        try:
+            doc.log(msg)
+        except Exception:
+            print(msg)
 
-def launch_server():
-    """Start the FastMCP server on port 42069 in the background. Console stays usable."""
-    print("Starting FastMCP server on port 42069...")
-    server_thread = threading.Thread(target=run_server, daemon=True)
+def launch_server_pymcp():
+    """Start the HopperPyMCP server on port 42069. Blocks the console until the server stops (keeps the connection reliable)."""
+    print("Starting HopperPyMCP server on port 42069...")
+    server_thread = threading.Thread(target=run_server_pymcp, daemon=False)
     server_thread.start()
-    print("Server endpoint: http://localhost:42069/mcp/ (running in background; console is free)")
+    print("Server: http://localhost:42069/mcp/")
+    server_thread.join()
+
+# Backward compat: launch_server() starts this server when this script is the only one loaded
+launch_server = launch_server_pymcp
 
 def cache_strings():
     print("Starting caching...")
     if create_string_caches_for_all_documents():
         print("Caching complete!")
-        print("To get started using the MCP server, paste this into the python prompt:")
-        print("\nlaunch_server()")
     else:
         print("String caching failed! Try saving all documents and pasting this again:")
         print("cache_strings()")
 
 if not "python" in sys.executable:
+    print("HopperPyMCP loaded.")
+    print("  MCP: launch_server_pymcp()  →  http://localhost:42069/mcp/")
     if not check_all_documents_have_string_caches():
         print("Due to slow Hopper string APIs, we must create our own string caches.")
         print("This process will take about 5-10 minutes per document and will save caches along side your hopper document saves.")
         print("\nTo start this process now, paste this into the python prompt and go have a coffee:")
         print("cache_strings()")
-        print("\nTo get started right away and yolo in the slow zone, paste launch_server() into the shell.")
     else:
         print("Congratulations! We found cached strings for your documents. The search_strings_regex() tool should now be FAST!")
-        print("To get started using the MCP server, paste this into the python prompt:")
-        print("\nlaunch_server()")

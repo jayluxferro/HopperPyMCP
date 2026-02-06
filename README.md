@@ -89,24 +89,26 @@ After running the script in Hopper, you'll need to launch the MCP server through
    
    Wait for caching to complete, then launch the server:
    ```python
-   launch_server()
+   launch_server_pymcp()
    ```
 
 2. **Quick Start (Skip Caching)**
    
    To start immediately without caching (slower string searches):
    ```python
-   launch_server()
+   launch_server_pymcp()
    ```
 
 3. **Subsequent Uses**
    
    If you've already cached strings for your documents:
    ```python
-   launch_server()
+   launch_server_pymcp()
    ```
 
-The server runs in the background on `http://localhost:42069/mcp/`; the Python console stays usable. It provides the following tools:
+The server runs and **blocks the Hopper Python console** until it stops, which keeps the connection reliable. Use a second Hopper window if you want to run analysis in the console while the MCP server is running in the first.
+
+Server: `http://localhost:42069/mcp/`. It provides the following tools:
 
 ### Document Management
 
@@ -210,6 +212,7 @@ source .venv/bin/activate        # for venv
 **Problem**: Import errors when running in Hopper
 - The installation should handle Python path configuration automatically
 - If issues persist, check that the installed script has the correct paths
+
 
 ### Platform-Specific Notes
 
